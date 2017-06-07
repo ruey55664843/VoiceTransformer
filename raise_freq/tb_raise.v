@@ -1,5 +1,5 @@
 `timescale 1ns/10ps
-`define CYCLE     200.0                // Modify your clock period here
+`define CYCLE     600.0                // Modify your clock period here
 `define CYCLE_CAL     10.0                // Modify your clock period here
 `define End_CYCLE  600      // Modify cycle times once your design need more cycle times!
 
@@ -13,23 +13,31 @@ reg         clk_cal;
 reg         rst;
 reg [31:0]  fft1_data;
 reg         fft1_valid;
-reg [4:0]   freq1;
+reg [5:0]   freq1;
 reg         fft1_fin;
+reg [31:0]  fft2_data;
+reg         fft2_valid;
+reg [5:0]   freq2;
+reg         fft2_fin;
 
 wire raise_valid;
 wire raise_fin;
 wire [31:0] raise_data;
+wire [5:0]  freq_out;
 
 reg [31:0] fft1_mem [0:511];
 initial $readmemh("fft_in1.dat", fft1_mem);
+reg [31:0] fft2_mem [0:511];
+initial $readmemh("fft_in2.dat", fft2_mem);
 
 integer i, j ,k, l,count;
 
 
 raiseFreq DUT(.clk(clk),.clk_cal(clk_cal),.rst(rst),.fft1_data(fft1_data),
     .fft1_valid(fft1_valid),.freq1(freq1),.fft1_fin(fft1_fin),
-    .raise_valid(raise_valid),.raise_fin(raise_fin),
-    .raise_data(raise_data));
+    .fft2_data(fft2_data),.fft2_valid(fft2_valid),.freq2(freq2),
+    .fft2_fin(fft2_fin),.raise_valid(raise_valid),.raise_fin(raise_fin),
+    .raise_data(raise_data),.freq_out(freq_out));
 
 /*
 * fir_data: input of fft
@@ -52,7 +60,9 @@ initial begin
     clk_cal     = 1'b0;
     rst       = 1'b0; 
     fft1_fin = 0;
-    freq1 = 5'b0;
+    fft2_fin = 0;
+    freq1 = 6'b0;
+    freq2 = 6'b0;
     en = 0;
     i = 0;   
     j = 0;  
@@ -74,27 +84,34 @@ always@(negedge clk ) begin
     if (en) begin
         if (i >= 512 )begin
             fft1_data <= 0;
+            fft2_data <= 0;
         end
         else begin
             fft1_data <= fft1_mem[i];
             //$display(fft1_mem[i]);
             //$display("\n");
+            fft2_data <= fft2_mem[i];
             i <= i + 1;
-            if (j<32)begin
+            if (j<64)begin
                 freq1 <= j;
+                freq2 <= j;
                 j <= j + 1;
-                if (j == 32)begin
+                if (j == 63)begin
                     fft1_fin <= 1;
+                    fft2_fin <= 1;
                 end
             end
             else begin
                 freq1 <= 0;
+                freq2 <= 0;
                 j <= 1;
                 fft1_fin <= 0;
+                fft2_fin <= 0;
             end
         end
     end
     fft1_valid <= en;
+    fft2_valid <= en;
     if(i == 550) begin
         $display("-----------------------------------------------------");
         $display("-------------End of sim ----------------------------");
