@@ -21,7 +21,7 @@ reg [1:0] quar1;
 reg [2:0] state; 
 reg [2:0] n_state;
 
-reg refresh_R,refresh_W,refresh_r,refresh_w;    //new input coming
+reg refresh_R, refresh_W, refresh_r,refresh_w;    //new input coming
 reg fin_r,fin_w;
 reg valid_r,valid_w;
 
@@ -71,12 +71,12 @@ always @(*)begin
     r1_w = r1_r;
     raised_output_w = raised_output_r;
     refresh_w = refresh_r;
-    refresh_W = refresh_R;
     fps_counter_w = fps_counter_r;
     output_debug_w = output_debug_r;
     max_mag_w = max_mag_r;
     valid_w = valid_r;
     fin_w = fin_r;
+    refresh_W = ~refresh_R;
     for (i=0; i<16; i=i+1)begin
         output_mag_cal_w[i] = output_mag_cal_r[i];
         output_mag_w[i] = output_mag_r[i];
@@ -218,8 +218,8 @@ always @(posedge clk_cal)begin
         state <= n_state;
         cur_r1_r <= cur_r1_w;
         cur_i1_r <= cur_i1_w;
-        angle_sum1_r = angle_sum1_w;
-        count_precision_r = count_precision_w;
+        angle_sum1_r <= angle_sum1_w;
+        count_precision_r <= count_precision_w;
         r1_r <= r1_w;
         raised_output_r <= raised_output_w;
         refresh_r <= refresh_w;
@@ -248,7 +248,7 @@ always @(posedge clk)begin
             cur_r1 <= fft1_data[(width-1):(width2)];
             cur_i1 <= fft1_data[(width2-1):0];
             cur_freq1 <= freq1;
-            refresh_R <= ~refresh_W;
+            refresh_R <= refresh_W;
         end
     end
 end
