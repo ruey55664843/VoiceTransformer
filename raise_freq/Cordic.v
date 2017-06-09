@@ -145,7 +145,7 @@ always @(*)begin
                             2'd2: angle_sum1_w = ((16'sd11520) - angle_sum1_r)>>>6;
                             2'd3: angle_sum1_w = (-(angle_sum1_r+(16'sd11520)))>>>6;
                         endcase
-                        if (cur_r1_r>16'd512)r1_w = (cur_r1_r>>>6)*len_scale;
+                        if (cur_r1_r>16'sd512)r1_w = (cur_r1_r>>>6)*len_scale;
                         else r1_w = (cur_r1_r*len_scale)>>>6;
                         n_state = state;
                     end

@@ -21,7 +21,9 @@ wire raise_fin;
 wire [31:0] raise_data;
 
 reg [31:0] fft1_mem [0:511];
+reg [5:0] fft1_freq_mem [0:511];
 initial $readmemh("fft_in1.dat", fft1_mem);
+initial $readmemb("fft_freq_in.dat", fft1_freq_mem);
 
 integer i, j ,k, l,count;
 
@@ -56,7 +58,7 @@ initial begin
     en = 0;
     i = 0;   
     j = 0;  
-    k = 0;
+    k = 31;
     l = 0;
     count=0;
 end
@@ -77,18 +79,17 @@ always@(negedge clk ) begin
         end
         else begin
             fft1_data <= fft1_mem[i];
+            freq1 <= fft1_freq_mem[i];
             //$display(fft1_mem[i]);
             //$display("\n");
             i <= i + 1;
             if (j<32)begin
-                freq1 <= j;
                 j <= j + 1;
                 if (j == 32)begin
                     fft1_fin <= 1;
                 end
             end
             else begin
-                freq1 <= 0;
                 j <= 1;
                 fft1_fin <= 0;
             end
